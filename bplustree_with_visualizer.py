@@ -21,7 +21,7 @@ from graphviz import Digraph, nohtml
 class BPlusTree(BPTree):
 
     def view_graph(self, graph_name='bplustree'):
-        if self.root is None:
+        if self.root.is_empty():
             print('The B+ Tree is empty!')
             return
 
