@@ -34,17 +34,6 @@ class Node:
         Node.uid_counter += 1
         self.uid = self.uid_counter
 
-    # def find_key_index(self, key):  # TODO: Implement improved version
-    #     for i, item in enumerate(self.keys):  # Otherwise, search key and append value.
-    #         if key == item:
-    #             return i
-    #         elif key < item:
-    #             self.keys = self.keys[:i] + [key] + self.keys[i:]
-    #             break
-    #         elif i + 1 == len(self.keys):
-    #             self.keys.append(key)
-    #             break
-
     def split(self) -> Node:  # Split a full Node to two new ones.
         left = Node(self.order)
         right = Node(self.order)
@@ -75,6 +64,9 @@ class Node:
 
     def get_size(self) -> int:
         return len(self.keys)
+
+    def is_empty(self) -> bool:
+        return len(self.keys) == 0
 
     def is_full(self) -> bool:
         return len(self.keys) == self.order - 1
@@ -142,8 +134,8 @@ class LeafNode(Node):
 
 class BPlusTree(object):
     def __init__(self, order=5):
-        self.root = LeafNode(order)  # First node must be leaf (to store data).
-        self.order = order
+        self.root: Node = LeafNode(order)  # First node must be leaf (to store data).
+        self.order: int = order
 
     @staticmethod
     def _find(node: Node, key):
@@ -180,7 +172,7 @@ class BPlusTree(object):
             node, index = self._find(node, key)
 
         # Node is now guaranteed a LeafNode!
-        node.add(key, value)  # TODO: Update this if necessary?
+        node.add(key, value)
 
         while len(node.keys) == node.order:  # 1 over full
             if not node.is_root():
@@ -314,7 +306,7 @@ class BPlusTree(object):
         return node.parent.values[index+1] if index+1 < len(node.parent.values) else None
 
     def show_bfs(self):
-        if self.root is None:
+        if self.root.is_empty():
             print('The B+ Tree is empty!')
             return
         queue = [self.root, 0]  # Node, Height... Scrappy but it works
@@ -326,7 +318,7 @@ class BPlusTree(object):
             if not isinstance(node, LeafNode):
                 queue += self.intersperse(node.values, height+1)
             print(height, '|'.join(map(str, node.keys)), '\t', node.uid, '\t parent -> ', node.parent.uid if node.parent else None)
-    
+
 
     def get_leftmost_leaf(self):
         if not self.root:
@@ -337,6 +329,14 @@ class BPlusTree(object):
             node = node.values[0]
 
         return node
+
+    def get_rightmost_leaf(self):
+        if not self.root:
+            return None
+
+        node = self.root
+        while not isinstance(node, LeafNode):
+            node = node.values[-1]
 
     def show_all_data(self):
         node = self.get_leftmost_leaf()
@@ -351,12 +351,9 @@ class BPlusTree(object):
         print('Last node')
 
     def show_all_data_reverse(self):
-        if not self.root:
+        node = self.get_rightmost_leaf()
+        if not node:
             return None
-
-        node = self.root
-        while not isinstance(node, LeafNode):
-            node = node.values[-1]
 
         while node:
             for node_data in reversed(node.values):
@@ -420,5 +417,4 @@ if __name__ == '__main__':
     bplustree.delete(16)
 
     bplustree.show_bfs()
-    print(isinstance(bplustree.root, LeafNode))
     bplustree.show_all_data()

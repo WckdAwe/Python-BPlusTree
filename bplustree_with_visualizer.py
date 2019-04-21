@@ -13,15 +13,15 @@ Influenced a lot by:
  - http://www.cburch.com/cs/340/reading/btree/
 """
 from __future__ import annotations
-from bplustree import BPlusTree as BPTree
-from bplustree import LeafNode
+from .bplustree import BPlusTree as BPTree
+from .bplustree import LeafNode
 from graphviz import Digraph, nohtml
 
 
 class BPlusTree(BPTree):
 
     def view_graph(self, graph_name='bplustree'):
-        if self.root is None:
+        if self.root.is_empty():
             print('The B+ Tree is empty!')
             return
 
